@@ -4,7 +4,7 @@ INF2008 Machine Learning Project
 
 ## Project Overview
 
-This project develops a predictive model for median waiting times from Emergency Department (ED) arrival to hospital ward admission across 9 Singapore public hospitals. The goal is to enable hospitals to forecast patient flow and optimize resource allocation.
+This project develops a predictive model for median waiting times from Emergency Department (ED) arrival to hospital ward admission across 10 Singapore public hospitals. The goal is to enable hospitals to forecast patient flow and optimize resource allocation.
 
 ## Repository Structure
 ```
@@ -13,10 +13,14 @@ This project develops a predictive model for median waiting times from Emergency
 │   ├── Attendances at EMD.csv
 │   ├── Bed Occupancy Rate.csv
 │   ├── public holidays.csv
-│   └── combined_hospital_daily_metrics.csv  (cleaned)
+│   ├── combined_hospital_daily_metrics.csv  (cleaned)
+│   └── disease_data_2023_2026.csv  (infectious disease data)
 ├── Stage_1/
 │   ├── Stage_1_Submission.ipynb
-│   └── group06_labXX_stage1.pdf
+│   └── group06_labP2_stage1.pdf
+├── Stage_2/
+│   ├── INF2008_Stage2_Final.ipynb
+│   └── group06_labP2_stage2.pdf
 └── README.md
 ```
 
@@ -28,8 +32,9 @@ This project develops a predictive model for median waiting times from Emergency
 | ED Attendance | Daily x Hospital | Jan 2023 - Jan 2026 |
 | Bed Occupancy Rate | Daily x Hospital | Jan 2023 - Jan 2026 |
 | Public Holidays | Date list | 2023 - 2026 |
+| Infectious Disease Bulletin | Weekly | 2023 - 2026 |
 
-Final cleaned dataset: 9,415 rows x 7 columns across 9 hospitals.
+Final cleaned dataset: 9,415 rows x 7 columns across 10 hospitals.
 
 ## Stage 1: Baseline Modelling
 
@@ -50,12 +55,47 @@ Final cleaned dataset: 9,415 rows x 7 columns across 9 hospitals.
 
 Linear Regression achieved 27.4% improvement over the dummy baseline.
 
-## Stage 2: Planned Improvements
+## Stage 2: Advanced Modelling
 
-- Hyperparameter tuning for Decision Tree
-- Feature engineering (lagged waiting times, rolling averages)
-- External data integration (infectious disease rates, air quality)
-- Alternative framing as multi-class classification
+**Objective:** Improve upon Stage 1 baseline using feature engineering, external data, and hyperparameter tuning.
+
+**Key Improvements:**
+- sklearn Pipeline with ColumnTransformer (prevents data leakage)
+- Temporal features (Lag_1_WaitTime)
+- External data integration (Infectious disease data 2023-2026)
+- Controlled ablation experiments for hyperparameter tuning
+
+**Champion Model:** Random Forest Regressor
+- n_estimators: 200
+- max_depth: 10
+- min_samples_leaf: 10
+
+**Results:**
+
+| Model | MAE (hrs) | RMSE (hrs) | R² |
+|-------|-----------|------------|-----|
+| Stage 1 Linear Regression | 2.44 | 3.67 | 0.40 |
+| Stage 2 Random Forest | 1.40 | 2.44 | 0.74 |
+
+**42.5% MAE improvement over Stage 1 baseline.**
+
+**Ablation Study Results:**
+
+| Experiment | Hypothesis | Best Value |
+|------------|------------|------------|
+| n_estimators | More trees reduce variance | 200 |
+| max_depth | Depth limit reduces overfitting | 10 |
+| Lag features | Lag captures temporal patterns | True |
+| min_samples_leaf | Larger leaves reduce overfitting | 10 |
+
+**Feature Set Comparison:**
+
+| Feature Set | MAE | R² |
+|-------------|-----|-----|
+| Baseline | 2.308 | 0.473 |
+| + Lag Features | 1.656 | 0.716 |
+| + Disease Features | 2.028 | 0.608 |
+| + Lag + Disease | 1.661 | 0.719 |
 
 ## Tools
 
@@ -68,3 +108,4 @@ Linear Regression achieved 27.4% improvement over the dummy baseline.
 
 - MOH Hospital Statistics: https://www.moh.gov.sg/others/resources-and-statistics/
 - Singapore Public Holidays: data.gov.sg
+- Weekly Infectious Disease Bulletin: https://www.cda.gov.sg/resources/
